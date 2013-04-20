@@ -19,8 +19,9 @@
   "license": "BSD",
   "dependencies": {
     "time": "~0.9.2"
-	},
-	"devDependencies": {
+  },
+  "devDependencies": {
+    "coffee-script": "~1.6.2",
     "mocha": "~1.9.0"
   }
 }
