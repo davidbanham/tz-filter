@@ -1,0 +1,26 @@
+{
+  "name": "tz-filter",
+  "version": "0.0.0",
+  "description": "Filter a list of timezones on what time it is there.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha -R spec --compilers coffee:coffee-script test.coffee",
+    "prepublish": "cake build",
+    "pretest": "cake build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/davidbanham/tz-filter.git"
+  },
+  "keywords": [
+    "timezone"
+  ],
+  "author": "david@banham.id.au",
+  "license": "BSD",
+  "dependencies": {
+    "time": "~0.9.2"
+	},
+	"devDependencies": {
+    "mocha": "~1.9.0"
+  }
+}
