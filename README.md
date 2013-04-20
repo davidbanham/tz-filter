@@ -2,6 +2,8 @@
 
 This module accepts an array of timezones (or objects with a .timezone property) and a specified time criteria, then filters the array for only timezones in which the criteria is satisfied.
 
+[![Build Status](https://travis-ci.org/davidbanham/tz-filter.png?branch=master)](https://travis-ci.org/davidbanham/tz-filter)
+
 eg: I have a list of users, I want to know which users it's currently the weekend for. Say it's currently 8pm UTC
 
 ```coffeescript
