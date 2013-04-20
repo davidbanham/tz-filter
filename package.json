@@ -1,6 +1,6 @@
 {
   "name": "tz-filter",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Filter a list of timezones on what time it is there.",
   "main": "src/index.js",
   "scripts": {
