@@ -2,7 +2,7 @@
   "name": "tz-filter",
   "version": "0.0.1",
   "description": "Filter a list of timezones on what time it is there.",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha -R spec --compilers coffee:coffee-script test.coffee",
     "prepublish": "cake build",
