@@ -39,10 +39,32 @@ describe 'lib', ->
         start: now.getHours() - 1
         end: now.getHours() - 1
         days: [0..6]
+      minuted:
+        start: '00:40'
+        end: '11:40'
+        days: [0..6]
+      superminuted:
+        start: '00:40'
+        end: '01:40'
+        days: [0..6]
     it "Should return all members for a permissive time", ->
       assert.equal (tzFilter members.objects, times.permissive).length, 2
     it "Should strip one member for a restrictive time", ->
       assert.equal (tzFilter members.objects, times.restrictive).length, 1
+    it "Should strip one member for a restrictive time with minutes", ->
+      assert.equal (tzFilter members.objects, times.minuted).length, 1
+    it "Should strip one member for a restrictive time with minutes when passed a time dep", ->
+      mockNow = new time.Date()
+      mockNow.setTimezone 'UTC'
+      mockNow.setMinutes '00'
+      mockNow.setHours '01'
+      assert.equal (tzFilter members.objects, times.superminuted, 0, mockNow).length, 1
+    it "Should strip both members for a restrictive time with minutes when passed a failing time dep", ->
+      mockNow = new time.Date()
+      mockNow.setTimezone 'UTC'
+      mockNow.setMinutes '00'
+      mockNow.setHours '00'
+      assert.equal (tzFilter members.objects, times.superminuted, 0, mockNow).length, 0
     it "Should acceptnumbers for days", ->
       assert.equal (tzFilter members.objects, times.numbers).length, 1
     it "Should accept an array of strings", ->
