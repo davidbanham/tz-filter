@@ -2,78 +2,99 @@ assert = require 'assert'
 time = require 'time'
 now = new time.Date()
 
+# sets seconds and milliseconds to zero, subtracts one from month for readability
+tzDate = (year,month,day,hours,minutes,tz) ->
+  return new time.Date(year,month - 1,day,hours,minutes,0,0,tz)
+
 describe 'lib', ->
   tzFilter = require './lib/index.js'
   describe "#tzFilter()", ->
-    members =
-      objects: [
+    times =
+      workday:
+        start: '08:30'
+        end: '17:30'
+        days: [1..5] #monday - friday
+      monOne:
+        start: '13:00'
+        end: '13:01'
+        days: [1] #monday only!
+      mornings:
+        start: '08'
+        end: '13'
+        days: [0..6] #all days
+      oddEvenings:
+        start: '13'
+        end: '18'
+        days: ['mon','wed','fri','sun'] #skipping days
+      halfDay:
+        start: '00'
+        end: '12'
+        days: [0..6] #all days
+      hourWindow:
+        start: now.getHours()
+        end: now.getHours() + 1
+        days: [0..6] #all days
+
+    it "Should return a single member if time is within the workday", ->  
+      mockNow = tzDate(2014,9,15,8,30,'Australia/Sydney') #8:30am Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 1
+      mockNow = tzDate(2014,9,15,13,0,'Australia/Sydney') #1:00pm Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 1
+      mockNow = tzDate(2014,9,15,17,29,'Australia/Sydney') #5:29pm Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 1
+
+    it "Should not return members where now is equal to the end time", ->  
+      mockNow = tzDate(2014,9,15,5,30,'Australia/Sydney') #5:30pm Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+
+    it "Should not return a member if time is within the workday", ->  
+      mockNow = tzDate(2014,9,15,0,0,'Australia/Sydney') #12:00am Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+      mockNow = tzDate(2014,9,15,8,29,'Australia/Sydney') #8:29am Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+
+    it "Should not return a member if the day is outside the workweek", ->  
+      mockNow = tzDate(2014,9,20,13,0,'Australia/Sydney') #1:00pm Saturday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+      mockNow = tzDate(2014,9,21,13,0,'Australia/Sydney') #1:00pm Sunday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+
+    it "Should accept objects with a timezone property", ->
+      mockNow = tzDate(2014,9,15,13,0,'Australia/Sydney') #1:00pm Monday
+      assert.equal (tzFilter [{timezone: 'Australia/Sydney'}], times.workday, 0, mockNow).length, 1
+
+    it "Should consider the timezone specified", ->
+      mockNow = tzDate(2014,9,15,13,0,'Pacific/Funafuti') #1:00pm Monday
+      assert.equal (tzFilter ['Pacific/Funafuti'], times.monOne, 0, mockNow).length, 1
+      mockNow = tzDate(2014,9,15,13,0,'America/Los_Angeles') #1:00pm Monday
+      assert.equal (tzFilter ['America/Los_Angeles'], times.monOne, 0, mockNow).length, 1
+      mockNow = tzDate(2014,9,15,13,0,'UTC') #1:00pm Monday
+      assert.equal (tzFilter ['UTC'], times.monOne, 0, mockNow).length, 1
+
+    it "Should accept times without minutes", ->
+      mockNow = tzDate(2014,9,15,8,0,'Australia/Sydney') #8:00am Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.mornings, 0, mockNow).length, 1
+      mockNow = tzDate(2014,9,15,12,59,'Australia/Sydney') #12:59pm Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.mornings, 0, mockNow).length, 1
+
+    it "Should accept days as strings", ->
+      mockNow = tzDate(2014,9,15,15,30,'Australia/Sydney') #3:30pm Monday
+      assert.equal (tzFilter [{timezone: 'Australia/Sydney'}], times.oddEvenings, 0, mockNow).length, 1
+      mockNow = tzDate(2014,9,16,15,30,'Australia/Sydney') #3:30pm Tuesday
+      assert.equal (tzFilter [{timezone: 'Australia/Sydney'}], times.oddEvenings, 0, mockNow).length, 0
+
+    it "Should consider time offsets", ->
+      mockNow = tzDate(2014,9,15,14,0,'UTC') #2:00pm Monday
+      assert.equal (tzFilter ['UTC'], times.monOne, -60, mockNow).length, 1
+      mockNow = tzDate(2014,9,15,10,0,'UTC') #10:00am Monday
+      assert.equal (tzFilter ['UTC'], times.monOne, 180, mockNow).length, 1
+
+    it "Should not require a time to be passed", ->
+      assert.equal (tzFilter [now.getTimezone()], times.hourWindow, 0).length, 1
+
+    it "Should always return exactly 1 member with opposite timezones", ->
+      opposites = [
         {timezone: 'UTC'}
         {timezone: 'Pacific/Funafuti'}
       ]
-      strings: [
-        'UTC'
-        'Pacific/Funafuti'
-      ]
-    times =
-      permissive:
-        start: '00'
-        end: '23'
-        days: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-      restrictive:
-        start: '00'
-        end: '11'
-        days: ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
-      numbers:
-        start: '00'
-        end: '11'
-        days: [0..6]
-      now:
-        start: now.getHours()
-        end: now.getHours()
-        days: [0..6]
-      inAnHour:
-        start: now.getHours() + 1
-        end: now.getHours() + 1
-        days: [0..6]
-      anHourAgo:
-        start: now.getHours() - 1
-        end: now.getHours() - 1
-        days: [0..6]
-      minuted:
-        start: '00:40'
-        end: '11:40'
-        days: [0..6]
-      superminuted:
-        start: '00:40'
-        end: '01:40'
-        days: [0..6]
-    it "Should return all members for a permissive time", ->
-      assert.equal (tzFilter members.objects, times.permissive).length, 2
-    it "Should strip one member for a restrictive time", ->
-      assert.equal (tzFilter members.objects, times.restrictive).length, 1
-    it "Should strip one member for a restrictive time with minutes", ->
-      assert.equal (tzFilter members.objects, times.minuted).length, 1
-    it "Should strip one member for a restrictive time with minutes when passed a time dep", ->
-      mockNow = new time.Date()
-      mockNow.setTimezone 'UTC'
-      mockNow.setMinutes '00'
-      mockNow.setHours '01'
-      assert.equal (tzFilter members.objects, times.superminuted, 0, mockNow).length, 1
-    it "Should strip both members for a restrictive time with minutes when passed a failing time dep", ->
-      mockNow = new time.Date()
-      mockNow.setTimezone 'UTC'
-      mockNow.setMinutes '00'
-      mockNow.setHours '00'
-      assert.equal (tzFilter members.objects, times.superminuted, 0, mockNow).length, 0
-    it "Should acceptnumbers for days", ->
-      assert.equal (tzFilter members.objects, times.numbers).length, 1
-    it "Should accept an array of strings", ->
-      assert.equal (tzFilter members.strings, times.restrictive).length, 1
-    it "Shouldn't filter the current time in the current zone", ->
-      assert.equal (tzFilter [now.getTimezone()], times.now).length, 1
-    it "Should handle an offset", ->
-      assert.equal (tzFilter [now.getTimezone()], times.now, 60).length, 0
-      assert.equal (tzFilter [now.getTimezone()], times.inAnHour, 60).length, 1
-    it "Should handle a negative offset", ->
-      assert.equal (tzFilter [now.getTimezone()], times.anHourAgo, -60).length, 1
-      assert.equal (tzFilter [now.getTimezone()], times.now, -60).length, 0
+      assert.equal (tzFilter opposites, times.halfDay, 0).length, 1

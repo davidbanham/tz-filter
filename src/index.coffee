@@ -11,7 +11,7 @@ module.exports =
       today = days[today] if typeof tarTime.days[0] == 'string'
       if now.getHours() >= tarTime.start.hour && now.getHours() <= tarTime.end.hour && tarTime.days.indexOf(today) > -1
         if now.getHours() is parseInt tarTime.start.hour
-          return false if now.getMinutes() <= parseInt tarTime.start.minute
+          return false if now.getMinutes() < parseInt tarTime.start.minute
         if now.getHours() is tarTime.end.hour
           return false if now.getMinutes >= tarTime.end.minute
         return true
