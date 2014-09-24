@@ -47,7 +47,7 @@ describe 'lib', ->
       mockNow = tzDate(2014,9,15,5,30,'Australia/Sydney') #5:30pm Monday
       assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
 
-    it "Should not return a member if time is within the workday", ->  
+    it "Should not return a member if time is outside the workday", ->  
       mockNow = tzDate(2014,9,15,0,0,'Australia/Sydney') #12:00am Monday
       assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
       mockNow = tzDate(2014,9,15,8,29,'Australia/Sydney') #8:29am Monday
