@@ -95,6 +95,6 @@ describe 'lib', ->
     it "Should always return exactly 1 member with opposite timezones", ->
       opposites = [
         {timezone: 'UTC'}
-        {timezone: 'Pacific/Funafuti'}
+        {timezone: 'Pacific/Funafuti'} #UTC +12hours (no daylight savings)
       ]
       assert.equal (tzFilter opposites, times.halfDay, 0).length, 1
