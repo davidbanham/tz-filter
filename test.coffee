@@ -95,6 +95,7 @@ describe 'lib', ->
 
     it "Should not require a time to be passed", ->
       console.log now.getTimezone()
+      console.log 'server time:', now.getHours(), ':', now.getMinutes()
       console.log times.hourWindow.start,' - ',times.hourWindow.end
       assert.equal (tzFilter [now.getTimezone()], times.hourWindow, 0).length, 1
 
