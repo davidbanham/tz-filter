@@ -52,6 +52,10 @@ describe 'lib', ->
       assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
       mockNow = tzDate(2014,9,15,8,29,'Australia/Sydney') #8:29am Monday
       assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+      mockNow = tzDate(2014,9,15,17,30,'Australia/Sydney') #8:29am Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
+      mockNow = tzDate(2014,9,15,20,0,'Australia/Sydney') #8:29am Monday
+      assert.equal (tzFilter ['Australia/Sydney'], times.workday, 0, mockNow).length, 0
 
     it "Should not return a member if the day is outside the workweek", ->  
       mockNow = tzDate(2014,9,20,13,0,'Australia/Sydney') #1:00pm Saturday
