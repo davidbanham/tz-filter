@@ -94,6 +94,8 @@ describe 'lib', ->
       assert.equal (tzFilter ['UTC'], times.monOne, 180, mockNow).length, 1
 
     it "Should not require a time to be passed", ->
+      console.log now.getTimezone()
+      console.log times.hourWindow.start,' - ',times.hourWindow.end
       assert.equal (tzFilter [now.getTimezone()], times.hourWindow, 0).length, 1
 
     it "Should always return exactly 1 member with opposite timezones", ->
