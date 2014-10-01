@@ -2,7 +2,6 @@ time = require 'time'
 module.exports =
   tzFilter = (candidates, original_tarTime, offset, now = new time.Date()) ->
     tarTime = JSON.parse JSON.stringify original_tarTime
-    console.log tarTime
 
     # return X characters from the end of a string ('simon',2 => 'on')
     rightTrim = (str, chars) ->
