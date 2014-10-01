@@ -19,7 +19,7 @@ module.exports =
         if now.getHours() is tarTime.start.hour
           return false if now.getMinutes() < tarTime.start.minute
         if now.getHours() is tarTime.end.hour
-          return false if now.getMinutes >= tarTime.end.minute
+          return false if now.getMinutes() >= tarTime.end.minute
         return true
       else
         return false
